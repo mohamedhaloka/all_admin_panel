@@ -44,6 +44,11 @@ const Home = () => {
     };
 
 
+    const navigateToCategoriesTable = () => {
+        navigate('/categories-table');
+    };
+
+
     const navigateToAssociationProducts = () => {
         navigate('/association-products');
     };
@@ -73,16 +78,16 @@ const Home = () => {
     return (
         <div className="center">
             <h2>Home Page</h2>
-            <p>Welcome {userEmail} to All Admin Panel!</p>
-            <button onClick={navigateToCategories} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc' }}>Categories</button>
-            <button onClick={navigateToHomeProducts} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc' }}>Home Products</button>
-            <button onClick={navigateToCompanies} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc' }}>Companies</button>
-            <button onClick={navigateToCoupons} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc' }}>Coupons</button>
-            <button onClick={navigateToAssociations} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc' }}>Associations</button>
-            <button onClick={navigateToAssociationProducts} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc' }}>Association Products</button>
-            <button onClick={navigateToContactUs} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc' }}>Contact Us Messages</button>
-            <button onClick={navigateToSettings} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc' }}>Settings</button>
-            <button onClick={handleLogout} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc' }}>Log Out</button>
+            <p>Welcome {userEmail} to "All" Admin Panel!</p>
+            <button onClick={navigateToCategoriesTable} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc', width: '300px' }}>Categories</button>
+            <button onClick={navigateToHomeProducts} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc', width: '300px' }}>Home Products</button>
+            <button onClick={navigateToCompanies} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc', width: '300px' }}>Companies</button>
+            <button onClick={navigateToCoupons} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc', width: '300px' }}>Coupons</button>
+            <button onClick={navigateToAssociations} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc', width: '300px' }}>Associations</button>
+            <button onClick={navigateToAssociationProducts} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc', width: '300px' }}>Association Products</button>
+            <button onClick={navigateToContactUs} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc', width: '300px' }}>Contact Us Messages</button>
+            <button onClick={navigateToSettings} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc', width: '300px' }}>Settings</button>
+            <button onClick={handleLogout} style={{ marginBottom: '15px', padding: '10px', border: '1px solid #ccc', width: '300px' }}>Log Out</button>
         </div>
     );
 };

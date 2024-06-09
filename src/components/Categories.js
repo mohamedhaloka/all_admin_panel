@@ -1,16 +1,19 @@
-// src/components/Categories.js
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebaseConfig';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { useParams, useNavigate } from 'react-router-dom';
 import './Associations.css';
 
 const Categories = () => {
     const [categories, setCategories] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState(null);
+    const [selectedCategory, setSelectedCategory] = useState('');
     const [nameAr, setNameAr] = useState('');
     const [nameEn, setNameEn] = useState('');
+    const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState('');
     const [error, setError] = useState('');
+    const { id } = useParams(); // Get the category ID from the URL
+    const navigate = useNavigate();
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -28,11 +31,7 @@ const Categories = () => {
                         'id': 'coupons',
                         'name': 'Coupons',
                     },
-
-                ].map(doc => ({
-                    id: doc.id,
-                    ...doc,
-                }));
+                ];
                 setCategories(categoriesData);
             } catch (error) {
                 console.error('Error fetching categories: ', error);
@@ -42,6 +41,28 @@ const Categories = () => {
         fetchCategories();
     }, []);
 
+    useEffect(() => {
+        if (id) {
+            const fetchCategory = async () => {
+                try {
+                    const categoryDoc = await getDoc(doc(db, 'categories', id));
+                    if (categoryDoc.exists()) {
+                        const categoryData = categoryDoc.data();
+                        setNameAr(categoryData.name);
+                        setNameEn(categoryData.nameEn);
+                        setSelectedCategory(categoryData.extra);
+                    } else {
+                        console.error('Category not found');
+                    }
+                } catch (error) {
+                    console.error('Error fetching category: ', error);
+                }
+            };
+
+            fetchCategory();
+        }
+    }, [id]);
+
     const handleCategoryChange = (e) => {
         setSelectedCategory(e.target.value);
     };
@@ -49,78 +70,101 @@ const Categories = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!selectedCategory) {
-            console.error('Please select a category.');
-            setError('Please select a product.');
-
+            setError('Please select a category.');
             return;
         }
 
+        setLoading(true);
         try {
-            await addDoc(collection(db, 'categories'), {
+            const categoryData = {
                 name: nameAr,
                 nameEn: nameEn,
                 extra: selectedCategory,
-            });
+                createdAt: serverTimestamp(),
+            };
 
+            if (id) {
+                await updateDoc(doc(db, 'categories', id), categoryData);
+                setSuccess('Category updated successfully');
+            } else {
+                await addDoc(collection(db, 'categories'), categoryData);
+                setSuccess('Category added successfully');
+            }
 
-            setSuccess('Data added successfully');
-            setSelectedCategory("");
+            setTimeout(() => {
+                setLoading(false);
+                navigate('/categories-table');
+            }, 2000);
+
+            setSelectedCategory('');
             setNameAr('');
             setNameEn('');
         } catch (error) {
-            console.error('Error adding document: ', error);
+            console.error('Error submitting form: ', error);
             setError(error.message);
+            setLoading(false);
         }
     };
 
-    return (
-        <div className="form-wrapper">
-            <h2>Categories</h2>
-            <form onSubmit={handleSubmit} className="form-container" style={{ display: 'flex', flexDirection: 'column', width: '500px' }}>
-                <div className="form-group">
-                    <label htmlFor="category">Select a Category:</label>
-                    <select
-                        id="category"
-                        value={selectedCategory}
-                        onChange={handleCategoryChange}
-                        required
-                        style={{ marginBottom: '10px', padding: '8px', fontSize: '16px' }}
-                    >
-                        <option value="">Select...</option>
-                        {categories.map(category => (
-                            <option key={category.id} value={category.id}>
-                                {category.name}
-                            </option>
-                        ))}
-                    </select>
+    return (//justify-content-center align-items-center
+        <div className="center" style={{ height: '100vh' }}>
+            <div className="row">
+                <div className="col-md-8">
+                    <div className="card" style={{ width: '500px' }}>
+                        <div className="card-body" >
+                            <h2 className="mb-4 text-center display-4 fw-bold text-primary">{id ? 'Edit Category' : 'Add Category'}</h2>
+                            <form onSubmit={handleSubmit}>
+                                <div className="mb-3">
+                                    <label htmlFor="category" className="form-label">Category:</label>
+                                    <select
+                                        id="category"
+                                        className="form-select"
+                                        value={selectedCategory}
+                                        onChange={handleCategoryChange}
+                                        required
+                                    >
+                                        <option value="">Select...</option>
+                                        {categories.map(category => (
+                                            <option key={category.id} value={category.id}>
+                                                {category.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="mb-3">
+                                    <label htmlFor="nameAr" className="form-label">Name (Arabic):</label>
+                                    <input
+                                        type="text"
+                                        id="nameAr"
+                                        className="form-control"
+                                        value={nameAr}
+                                        onChange={(e) => setNameAr(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label htmlFor="nameEn" className="form-label">Name (English):</label>
+                                    <input
+                                        type="text"
+                                        id="nameEn"
+                                        className="form-control"
+                                        value={nameEn}
+                                        onChange={(e) => setNameEn(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                                <div className="text-center">
+                                    <button type="submit" className="btn btn-primary" disabled={loading}>
+                                        {loading ? 'Loading...' : id ? 'Update' : 'Submit'}
+                                    </button>
+                                </div>
+                            </form>
+                            {error && <p className="text-danger mt-3">{error}</p>}
+                            {success && <p className="text-success mt-3">{success}</p>}
+                        </div>
+                    </div>
                 </div>
-                <div className="form-group">
-                    <label htmlFor="nameAr">Name Ar:</label>
-                    <input
-                        type="text"
-                        id="Name Ar"
-                        value={nameAr}
-                        onChange={(e) => setNameAr(e.target.value)}
-                        required
-                        style={{ marginBottom: '10px', padding: '8px', fontSize: '16px' }}
-                    />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="nameEn">Name En:</label>
-                    <input
-                        type="text"
-                        id="Name En"
-                        value={nameEn}
-                        onChange={(e) => setNameEn(e.target.value)}
-                        required
-                        style={{ marginBottom: '10px', padding: '8px', fontSize: '16px' }}
-                    />
-                </div>
-                <button type="submit">Submit</button>
-            </form>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            {success && <p style={{ color: 'green' }}>{success}</p>}
-
+            </div>
         </div>
     );
 };

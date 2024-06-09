@@ -11,6 +11,7 @@ import Coupons from './components/Coupons';
 import AssociationProducts from './components/AssociationProducts';
 import Settings from './components/Settings';
 import Categories from './components/Categories';
+import CategoriesTable from './components/CategoriesTable';
 import HomeProducts from './components/HomeProducts';
 
 const App = () => {
@@ -25,6 +26,14 @@ const App = () => {
           element={
             <ProtectedRoute>
               <Home />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/categories-table"
+          element={
+            <ProtectedRoute>
+              <CategoriesTable />
             </ProtectedRoute>
           }
         />
@@ -53,7 +62,15 @@ const App = () => {
           }
         />
         <Route
-          path="/categories"
+          path="/add-category"
+          element={
+            <ProtectedRoute>
+              <Categories />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/edit-category/:id"
           element={
             <ProtectedRoute>
               <Categories />
