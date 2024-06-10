@@ -1,40 +1,39 @@
-// src/components/CompaniesTable.js
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebaseConfig';
 import { collection, getDocs, doc, deleteDoc, orderBy } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import './CategoriesTable.css';
 
-const CompaniesTable = () => {
-    const [companies, setCompanies] = useState([]);
+const CouponsTable = () => {
+    const [coupons, setCoupons] = useState([]);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [deleteId, setDeleteId] = useState('');
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchCompanies = async () => {
+        const fetchCoupons = async () => {
             try {
-                const querySnapshot = await getDocs(collection(db, 'companies'), orderBy('createdAt'));
-                const companiesData = querySnapshot.docs.map(doc => ({
+                const querySnapshot = await getDocs(collection(db, 'coupons'), orderBy('createdAt'));
+                const couponsData = querySnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data(),
                 }));
-                setCompanies(companiesData);
+                setCoupons(couponsData);
                 setLoading(false);
             } catch (error) {
                 setLoading(false);
-                console.error('Error fetching companies: ', error);
+                console.error('Error fetching coupons: ', error);
             }
         };
 
-        fetchCompanies();
+        fetchCoupons();
     }, []);
 
     const handleDelete = async (id) => {
         try {
-            await deleteDoc(doc(db, 'companies', id));
-            setCompanies(companies.filter(company => company.id !== id));
+            await deleteDoc(doc(db, 'coupons', id));
+            setCoupons(coupons.filter(coupon => coupon.id !== id));
             setShowConfirmDialog(false);
         } catch (error) {
             console.error('Error deleting document: ', error);
@@ -47,11 +46,11 @@ const CompaniesTable = () => {
     };
 
     const handleEdit = (id) => {
-        navigate(`/edit-company/${id}`);
+        navigate(`/edit-coupon/${id}`);
     };
 
     const handleAdd = () => {
-        navigate('/add-company');
+        navigate('/add-coupon');
     };
 
     const handleGoHome = () => {
@@ -60,7 +59,7 @@ const CompaniesTable = () => {
 
     return (
         <div className="container categories-table-page">
-            <h2 className="my-4">Companies</h2>
+            <h2 className="my-4">Coupons</h2>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <button className="btn btn-success mb-3" onClick={handleAdd}>
@@ -81,32 +80,30 @@ const CompaniesTable = () => {
                     <thead className="thead-dark">
                         <tr>
                             <th>ID</th>
-                            <th>Name Ar</th>
-                            <th>Name En</th>
-                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Discount</th>
+                            <th>Expiration Date</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {companies.map(company => (
-                            <tr key={company.id}>
-                                <td>{company.id}</td>
-                                <td>{company.name}</td>
-                                <td>{company.nameEn}</td>
-                                <td>
-                                    <img src={company.imageUrl} alt={company.name} style={{ width: '50px', height: '50px' }} />
-                                </td>
+                        {coupons.map(coupon => (
+                            <tr key={coupon.id}>
+                                <td>{coupon.id}</td>
+                                <td>{coupon.name}</td>
+                                <td>{coupon.discount}</td>
+                                <td>{coupon.expirationDate}</td>
                                 <td>
                                     <div className="d-flex">
                                         <button
                                             className="btn btn-primary btn-sm me-2"
-                                            onClick={() => handleEdit(company.id)}
+                                            onClick={() => handleEdit(coupon.id)}
                                         >
                                             <i className="fas fa-edit"></i>
                                         </button>
                                         <button
                                             className="btn btn-danger btn-sm"
-                                            onClick={() => confirmDelete(company.id)}
+                                            onClick={() => confirmDelete(coupon.id)}
                                         >
                                             <i className="fas fa-trash-alt"></i>
                                         </button>
@@ -140,4 +137,4 @@ const CompaniesTable = () => {
     );
 };
 
-export default CompaniesTable;
+export default CouponsTable;

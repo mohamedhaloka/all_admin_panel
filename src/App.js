@@ -4,10 +4,12 @@ import SignIn from './components/SignIn';
 import SignUp from './components/SignUp';
 import Home from './components/Home';
 import Companies from './components/Companies';
+import CompaniesTable from './components/CompaniesTable';
 import Associations from './components/Associations';
 import ContactUsMessages from './components/ContactUsMessages';
 import ProtectedRoute from './components/ProtectedRoute';
 import Coupons from './components/Coupons';
+import CouponsTable from './components/CouponsTable';
 import AssociationProducts from './components/AssociationProducts';
 import Settings from './components/Settings';
 import Categories from './components/Categories';
@@ -38,7 +40,23 @@ const App = () => {
           }
         />
         <Route
-          path="/companies"
+          path="/companies-table"
+          element={
+            <ProtectedRoute>
+              <CompaniesTable />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/add-company"
+          element={
+            <ProtectedRoute>
+              <Companies />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/edit-company/:id"
           element={
             <ProtectedRoute>
               <Companies />
@@ -94,7 +112,23 @@ const App = () => {
           }
         />
         <Route
-          path="/coupons"
+          path="/coupons-table"
+          element={
+            <ProtectedRoute>
+              <CouponsTable />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/add-coupon"
+          element={
+            <ProtectedRoute>
+              <Coupons />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/edit-coupon/:id"
           element={
             <ProtectedRoute>
               <Coupons />

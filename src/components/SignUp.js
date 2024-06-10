@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { auth } from '../firebaseConfig';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import './Associations.css';
+import './Auth.css'; // Reuse the same CSS file for consistent styling
 
 const SignUp = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
+
+    useEffect(() => {
+        // Add a fade-in animation when the component mounts
+        const signInContainer = document.querySelector('.signin-container');
+        if (signInContainer) {
+            signInContainer.classList.add('fade-in');
+        }
+    }, []);
 
     const handleSignUp = async (e) => {
         e.preventDefault();
@@ -22,16 +30,17 @@ const SignUp = () => {
     };
 
     return (
-        <div className="form-wrapper">
-            <h2>Sign Up</h2>
-            <form onSubmit={handleSignUp} className="form-container" style={{ display: 'flex', flexDirection: 'column', width: '300px' }}>
+        <div className="signin-container">
+            <h2 className="signin-title">Sign Up</h2>
+            <p >Please provide Us you email and password to create your account</p>
+            <form onSubmit={handleSignUp} className="signin-form">
                 <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Email"
                     required
-                    style={{ marginBottom: '10px', padding: '8px', fontSize: '16px' }}
+                    className="signin-input"
                 />
                 <input
                     type="password"
@@ -39,13 +48,13 @@ const SignUp = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Password"
                     required
-                    style={{ marginBottom: '10px', padding: '8px', fontSize: '16px' }}
+                    className="signin-input"
                 />
-                <button type="submit">Sign Up</button>
+                <button type="submit" className="signin-button">Sign Up</button>
             </form>
-            {error && <p>{error}</p>}
-            <p>
-                Already have an account? <Link to="/signin">Sign In</Link>
+            {error && <p className="signin-error">{error}</p>}
+            <p className="signin-text">
+                Already have an account? <Link to="/signin" className="signin-link">Sign In</Link>
             </p>
         </div>
     );

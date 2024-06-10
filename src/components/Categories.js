@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebaseConfig';
-import { collection, addDoc, doc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, doc, getDoc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { useParams, useNavigate } from 'react-router-dom';
 import './Associations.css';
 
@@ -106,7 +106,18 @@ const Categories = () => {
         }
     };
 
-    return (//justify-content-center align-items-center
+    const handleDelete = async () => {
+        if (!window.confirm('Are you sure you want to delete this category?')) return;
+
+        try {
+            await deleteDoc(doc(db, 'categories', id));
+            navigate('/categories-table');
+        } catch (error) {
+            console.error('Error deleting category: ', error);
+        }
+    };
+
+    return (
         <div className="center" style={{ height: '100vh' }}>
             <div className="row">
                 <div className="col-md-8">
@@ -153,10 +164,20 @@ const Categories = () => {
                                         required
                                     />
                                 </div>
-                                <div className="text-center">
+                                <div className="d-flex justify-content-between align-items-center">
                                     <button type="submit" className="btn btn-primary" disabled={loading}>
                                         {loading ? 'Loading...' : id ? 'Update' : 'Submit'}
                                     </button>
+                                    {id && (
+                                        <>
+                                            <button type="button" className="btn btn-danger" onClick={handleDelete}>
+                                                Delete
+                                            </button>
+                                            <button type="button" className="btn btn-secondary" onClick={() => navigate('/categories-table')}>
+                                                Cancel
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
                             </form>
                             {error && <p className="text-danger mt-3">{error}</p>}

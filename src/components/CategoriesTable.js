@@ -1,4 +1,3 @@
-// src/components/CategoriesTable.js
 import React, { useState, useEffect } from 'react';
 import { db } from '../firebaseConfig';
 import { collection, getDocs, doc, deleteDoc, orderBy } from 'firebase/firestore';
@@ -63,14 +62,14 @@ const CategoriesTable = () => {
             <h2 className="my-4">Categories</h2>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
-
                 <button className="btn btn-success mb-3" onClick={handleAdd}>
                     <i className="fas fa-plus"></i> Add New
                 </button>
                 <div className="d-flex">
-                    <button className="btn btn-primary mb-3" onClick={handleGoHome}>
+                    <button className="btn btn-primary mb-3 me-2" onClick={handleGoHome}>
                         <i className="fas fa-home"></i>
                     </button>
+
                 </div>
             </div>
             {loading ? (
@@ -96,18 +95,21 @@ const CategoriesTable = () => {
                                 <td>{category.nameEn}</td>
                                 <td>{category.extra}</td>
                                 <td>
-                                    <button
-                                        className="btn btn-primary btn-sm me-2"
-                                        onClick={() => handleEdit(category.id)}
-                                    >
-                                        <i className="fas fa-edit"></i>
-                                    </button>
-                                    <button
-                                        className="btn btn-danger btn-sm"
-                                        onClick={() => confirmDelete(category.id)}
-                                    >
-                                        <i className="fas fa-trash-alt"></i>
-                                    </button>
+                                    <div className="d-flex">
+                                        <button
+                                            className="btn btn-primary btn-sm me-2"
+                                            onClick={() => handleEdit(category.id)}
+                                        >
+                                            <i className="fas fa-edit"></i>
+                                        </button>
+                                        <button
+                                            className="btn btn-danger btn-sm"
+                                            onClick={() => confirmDelete(category.id)}
+                                        >
+                                            <i className="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+
                                 </td>
                             </tr>
                         ))}
