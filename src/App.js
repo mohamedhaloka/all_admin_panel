@@ -15,6 +15,7 @@ import Settings from './components/Settings';
 import Categories from './components/Categories';
 import CategoriesTable from './components/CategoriesTable';
 import HomeProducts from './components/HomeProducts';
+import AssociationsTable from './components/AssociationsTable';
 
 const App = () => {
   return (
@@ -64,7 +65,23 @@ const App = () => {
           }
         />
         <Route
-          path="/associations"
+          path="/associations-table"
+          element={
+            <ProtectedRoute>
+              <AssociationsTable />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/add-association"
+          element={
+            <ProtectedRoute>
+              <Associations />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/edit-association/:id"
           element={
             <ProtectedRoute>
               <Associations />

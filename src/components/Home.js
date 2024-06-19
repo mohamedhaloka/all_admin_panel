@@ -41,11 +41,11 @@ const Home = () => {
                 <p className="card-text">Welcome {userEmail} to "All" Admin Panel!</p>
                 <div className="button-container">
                     <button onClick={navigateTo('/categories-table')} className="btn btn-primary">Categories</button>
-                    <button onClick={navigateTo('/home-products')} className="btn btn-primary">Home Products</button>
+                    {/* <button onClick={navigateTo('/home-products')} className="btn btn-primary">Home Products</button> */}
                     <button onClick={navigateTo('/companies-table')} className="btn btn-primary">Companies</button>
                     <button onClick={navigateTo('/coupons-table')} className="btn btn-primary">Coupons</button>
-                    <button onClick={navigateTo('/associations')} className="btn btn-primary">Associations</button>
-                    <button onClick={navigateTo('/association-products')} className="btn btn-primary">Association Products</button>
+                    <button onClick={navigateTo('/associations-table')} className="btn btn-primary">Associations</button>
+                    {/* <button onClick={navigateTo('/association-products')} className="btn btn-primary">Association Products</button> */}
                     <button onClick={navigateTo('/contact-us-messages')} className="btn btn-primary">Contact Us Messages</button>
                     <button onClick={navigateTo('/settings')} className="btn btn-secondary">Settings</button>
                     <button onClick={handleLogout} className="btn btn-danger">Log Out</button>

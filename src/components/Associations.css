@@ -23,3 +23,11 @@
     font-size: 16px;
   }
   
+  .scrollable-container {
+    height: 100vh; /* Full viewport height */
+    overflow-: auto; /* Enable vertical scrolling */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}

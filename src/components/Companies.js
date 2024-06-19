@@ -10,6 +10,7 @@ const Companies = () => {
     const [companyNameAr, setCompanyNameAr] = useState('');
     const [companyNameEn, setCompanyNameEn] = useState('');
     const [image, setImage] = useState(null);
+    const [imageUrl, setImageUrl] = useState(null);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState('');
@@ -25,7 +26,7 @@ const Companies = () => {
                     const companyData = companyDoc.data();
                     setCompanyNameAr(companyData.name || '');
                     setCompanyNameEn(companyData.nameEn || '');
-                    setImage(companyData.imageUrl || '');
+                    setImageUrl(companyData.imageUrl || '');
                 } else {
                     console.error('Company not found');
                 }
@@ -39,7 +40,22 @@ const Companies = () => {
         }
     }, [id]);
 
+    function isValidURL(str) {
+        const pattern = new RegExp(
+            '^(https?:\\/\\/)?' + // protocol
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.([a-z]{2,})|(([\\d]{1,3}\\.){3}[\\d]{1,3}))|' + // domain name and extension or IP address (v4)
+            'localhost|' + // localhost
+            '\\[[0-9a-fA-F:]+\\])' + // IPv6 address
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+            '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+            '(\\#[-a-z\\d_]*)?$', // fragment locator
+            'i'
+        );
+        return !!pattern.test(str);
+    }
+
     const handleAddCompany = async (e) => {
+        e.preventDefault();
 
         if (image == null && id == null) {
             console.error('Please select a image.');
@@ -48,7 +64,6 @@ const Companies = () => {
             return;
         }
 
-        e.preventDefault();
         setError('');
         setSuccess('');
         setLoading(true);
@@ -135,6 +150,12 @@ const Companies = () => {
                             />
                         </div>
                         <div className="col-12 text-center">
+                            {imageUrl && (
+                                <div className="mb-3">
+                                    <img src={imageUrl} alt="Company" className="img-fluid" />
+
+                                </div>
+                            )}
                             <button type="submit" className="btn btn-primary" disabled={loading}>
                                 {loading ? 'Loading...' : id ? 'Update Company' : 'Add Company'}
                             </button>

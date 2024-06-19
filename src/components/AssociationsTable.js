@@ -4,37 +4,37 @@ import { collection, getDocs, doc, deleteDoc, orderBy } from 'firebase/firestore
 import { useNavigate } from 'react-router-dom';
 import './CategoriesTable.css';
 
-const CouponsTable = () => {
-    const [coupons, setCoupons] = useState([]);
+const AssociationsTable = () => {
+    const [associations, setAssociations] = useState([]);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
     const [deleteId, setDeleteId] = useState('');
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
-        const fetchCoupons = async () => {
+        const fetchAssociations = async () => {
             try {
-                const querySnapshot = await getDocs(collection(db, 'coupons'), orderBy('createdAt'));
-                const couponsData = querySnapshot.docs.map(doc => ({
+                const querySnapshot = await getDocs(collection(db, 'associations'), orderBy('createdAt'));
+                const associationsData = querySnapshot.docs.map(doc => ({
                     id: doc.id,
                     ...doc.data(),
                 }));
-                console.log(couponsData);
-                setCoupons(couponsData);
+                console.log(associationsData);
+                setAssociations(associationsData);
                 setLoading(false);
             } catch (error) {
                 setLoading(false);
-                console.error('Error fetching coupons: ', error);
+                console.error('Error fetching associations: ', error);
             }
         };
 
-        fetchCoupons();
+        fetchAssociations();
     }, []);
 
     const handleDelete = async (id) => {
         try {
-            await deleteDoc(doc(db, 'coupons', id));
-            setCoupons(coupons.filter(coupon => coupon.id !== id));
+            await deleteDoc(doc(db, 'associations', id));
+            setAssociations(associations.filter(association => association.id !== id));
             setShowConfirmDialog(false);
         } catch (error) {
             console.error('Error deleting document: ', error);
@@ -47,11 +47,11 @@ const CouponsTable = () => {
     };
 
     const handleEdit = (id) => {
-        navigate(`/edit-coupon/${id}`);
+        navigate(`/edit-association/${id}`);
     };
 
     const handleAdd = () => {
-        navigate('/add-coupon');
+        navigate('/add-association');
     };
 
     const handleGoHome = () => {
@@ -60,7 +60,7 @@ const CouponsTable = () => {
 
     return (
         <div className="container categories-table-page">
-            <h2 className="my-4">Coupons</h2>
+            <h2 className="my-4">Associations</h2>
 
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <button className="btn btn-success mb-3" onClick={handleAdd}>
@@ -81,43 +81,82 @@ const CouponsTable = () => {
                     <thead className="thead-dark">
                         <tr>
                             <th>ID</th>
-                            <th>Name</th>
-                            <th>Discount</th>
-                            <th>Provider Image</th>
-                            <th>Offer Url</th>
+                            <th>Name (Arabic)</th>
+                            <th>Name (English)</th>
+                            <th>Image</th>
+                            <th>Cover</th>
+                            <th>Bio</th>
+                            <th>Facebook</th>
+                            <th>Twitter</th>
+                            <th>LinkedIn</th>
+                            <th>Instagram</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {coupons.map(coupon => (
-                            <tr key={coupon.id}>
-                                <td>{coupon.id}</td>
-                                <td>{coupon.name}</td>
-                                <td>{coupon.extra}</td>
+                        {associations.map(association => (
+                            <tr key={association.id}>
+                                <td>{association.id}</td>
+                                <td>{association.name}</td>
+                                <td>{association.nameEn}</td>
                                 <td>
-                                    <img src={coupon.image} alt={coupon.name} style={{ width: '50px', height: '50px' }} />
+                                    <img src={association.imageUrl} alt={association.name} style={{ width: '50px', height: '50px' }} />
+                                </td>
+                                <td>
+                                    <img src={association.coverUrl} alt={`${association.name} Cover`} style={{ width: '50px', height: '50px' }} />
+                                </td>
+                                <td>{association.bio}</td>
+                                <td>
+                                    <a
+                                        href={association.facebook}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{ textDecoration: 'none', color: 'blue' }}
+                                    >
+                                        Facebook
+                                    </a>
                                 </td>
                                 <td>
                                     <a
-                                        href={coupon.url}
+                                        href={association.twitter}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        style={{ textDecoration: 'none', color: 'blue', }}
+                                        style={{ textDecoration: 'none', color: 'blue' }}
                                     >
-                                        Navigate to offer
+                                        Twitter
+                                    </a>
+                                </td>
+                                <td>
+                                    <a
+                                        href={association.linkedIn}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{ textDecoration: 'none', color: 'blue' }}
+                                    >
+                                        LinkedIn
+                                    </a>
+                                </td>
+                                <td>
+                                    <a
+                                        href={association.instagram}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style={{ textDecoration: 'none', color: 'blue' }}
+                                    >
+                                        Instagram
                                     </a>
                                 </td>
                                 <td>
                                     <div className="d-flex">
                                         <button
                                             className="btn btn-primary btn-sm me-2"
-                                            onClick={() => handleEdit(coupon.id)}
+                                            onClick={() => handleEdit(association.id)}
                                         >
                                             <i className="fas fa-edit"></i>
                                         </button>
                                         <button
                                             className="btn btn-danger btn-sm"
-                                            onClick={() => confirmDelete(coupon.id)}
+                                            onClick={() => confirmDelete(association.id)}
                                         >
                                             <i className="fas fa-trash-alt"></i>
                                         </button>
@@ -151,4 +190,4 @@ const CouponsTable = () => {
     );
 };
 
-export default CouponsTable;
+export default AssociationsTable;

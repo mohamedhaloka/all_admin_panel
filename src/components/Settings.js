@@ -41,6 +41,7 @@ const Settings = () => {
     const handleSubmit = async (e) => {
         setSuccess('');
         setError('');
+        setLoading(true);
         e.preventDefault();
         try {
             const docRef = doc(db, 'appData', 'settings');
@@ -50,6 +51,8 @@ const Settings = () => {
             console.error('Error updating document:', error);
             setError('Error updating document');
         }
+        setLoading(false);
+
     };
 
     return (
@@ -196,7 +199,7 @@ const Settings = () => {
                                 />
                             </div>
                             <div className="col-12 text-center">
-                                <button type="submit" className="btn btn-primary" disabled={!!success}>
+                                <button type="submit" className="btn btn-primary" disabled={loading}>
                                     Submit
                                 </button>
                             </div>

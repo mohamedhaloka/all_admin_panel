@@ -1,116 +1,183 @@
 import React, { useState, useEffect } from 'react';
-import { db, storage } from '../firebaseConfig'; // Assuming you have storage configured in your firebaseConfig
-import { collection, addDoc, updateDoc, getDoc, doc } from 'firebase/firestore';
-import { useParams, useNavigate } from 'react-router-dom';
-import './Companies.css';
+import { db, storage } from '../firebaseConfig';
+import { collection, addDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { v4 as uuidv4 } from 'uuid';
+import { useNavigate, useParams } from 'react-router-dom';
+
 
 const Coupons = () => {
-    const [companyNameAr, setCompanyNameAr] = useState('');
-    const [imageUrl, setImageUrl] = useState('');
+    const [couponName, setCouponName] = useState('');
     const [discount, setDiscount] = useState('');
+    const [image, setImage] = useState(null);
+    const [providerUrl, setProviderUrl] = useState("");
+    const [imageUrl, setImageUrl] = useState(null);
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState('');
-    const { id } = useParams(); // Get the coupon ID from the URL
+    const { id } = useParams(); // Get the category ID from the URL
     const navigate = useNavigate();
-    const [imageFile, setImageFile] = useState(null);
 
     useEffect(() => {
-        // If in edit mode, fetch coupon data
-        if (id) {
-            const fetchCouponData = async () => {
-                try {
-                    // Assuming you have a 'coupons' collection with documents containing the coupon data
-                    const docSnap = await getDoc(doc(db, 'coupons', id));
-                    if (docSnap.exists()) {
-                        const couponData = docSnap.data();
-                        setCompanyNameAr(couponData.name);
-                        setDiscount(couponData.extra);
-                        setImageUrl(couponData.image);
-                    } else {
-                        setError('Coupon not found');
-                    }
-                } catch (error) {
-                    console.error('Error fetching coupon data:', error);
-                    setError('Error fetching coupon data');
+        const fetchCoupon = async () => {
+            try {
+                console.log(id);
+                const couponDoc = await getDoc(doc(db, 'coupons', id));
+                if (couponDoc.exists()) {
+                    const couponsData = couponDoc.data();
+                    setCouponName(couponsData.name || '');
+                    setDiscount(couponsData.extra || '');
+                    setImageUrl(couponsData.image || '');
+                    setProviderUrl(couponsData.url || '');
+                } else {
+                    console.error('Company not found');
                 }
-            };
+            } catch (error) {
+                console.error('Error fetching company: ', error);
+            }
+        };
 
-            fetchCouponData();
+        if (id) {
+            fetchCoupon();
         }
     }, [id]);
 
-    const handleImageUpload = async (e) => {
-        const file = e.target.files[0];
+    function isValidURL(str) {
+        const pattern = new RegExp(
+            '^(https?:\\/\\/)?' + // protocol
+            '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.([a-z]{2,})|(([\\d]{1,3}\\.){3}[\\d]{1,3}))|' + // domain name and extension or IP address (v4)
+            'localhost|' + // localhost
+            '\\[[0-9a-fA-F:]+\\])' + // IPv6 address
+            '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+            '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+            '(\\#[-a-z\\d_]*)?$', // fragment locator
+            'i'
+        );
+        return !!pattern.test(str);
+    }
 
-    };
-
-    const handleAddEditCoupon = async (e) => {
+    const handleAddCompany = async (e) => {
         e.preventDefault();
+
+        if (image == null && id == null) {
+            console.error('Please select a image.');
+            setError('Please select a image.');
+
+            return;
+        }
+
         setError('');
         setSuccess('');
-
+        setLoading(true);
         try {
-            if (id) {
-                await updateDoc(doc(db, 'coupons', id), {
-                    name: companyNameAr,
-                    extra: discount,
-                    image: imageUrl
-                });
-            } else {
-                // const storageRef = storage.ref();
-                // const imageRef = storageRef.child(`images/${file.name}`);
+            let imageUrl = '';
 
-                // try {
-                //     await imageRef.put(file);
-                //     const url = await imageRef.getDownloadURL();
-                //     setImageUrl(url);
-                // } catch (error) {
-                //     console.error('Error uploading image:', error);
-                //     setError('Error uploading image');
-                // }
-
-
-                await addDoc(collection(db, 'coupons'), {
-                    name: companyNameAr,
-                    extra: discount,
-                    image: imageUrl
-                });
+            if (image) {
+                const storageRef = ref(storage, `images/${uuidv4()}`);
+                const snapshot = await uploadBytes(storageRef, image);
+                imageUrl = await getDownloadURL(snapshot.ref);
             }
-            setSuccess('Coupon saved successfully');
+
+            const companyData = {
+                name: couponName,
+                extra: discount,
+                url: providerUrl,
+            };
+
+            console.log('image ', image)
+            if (image) {
+                companyData["image"] = imageUrl
+            }
+
+            console.log(companyData);
+
+            if (id) {
+                // Update existing company
+                await updateDoc(doc(db, 'coupons', id), companyData);
+                setSuccess('Coupon updated successfully');
+            } else {
+                // Add new company
+                await addDoc(collection(db, 'coupons'), companyData);
+                setSuccess('Coupon added successfully');
+            }
+
+            setTimeout(() => {
+                setLoading(false);
+                navigate('/coupons-table');
+            }, 2000);
+
+            setLoading(false);
         } catch (error) {
-            console.error('Error saving coupon:', error);
-            setError('Error saving coupon');
+            setLoading(false);
+            setError(error.message);
+        }
+    };
+
+    const handleImageChange = (e) => {
+        if (e.target.files[0]) {
+            setImage(e.target.files[0]);
         }
     };
 
     return (
-        <div className="form-wrapper">
-            <h2>{id ? 'Edit Coupon' : 'Add Coupon'}</h2>
-            <form onSubmit={handleAddEditCoupon} className="form-container" style={{ display: 'flex', flexDirection: 'column', width: '300px' }}>
-                <input
-                    type="text"
-                    value={companyNameAr}
-                    onChange={(e) => setCompanyNameAr(e.target.value)}
-                    placeholder="Coupon"
-                    required
-                />
-                <input
-                    type="text"
-                    value={discount}
-                    onChange={(e) => setDiscount(e.target.value)}
-                    placeholder="Discount Amount"
-                    required
-                />
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    required={!id} // Image upload required only for adding new coupon
-                />
-                <button type="submit">{id ? 'Save Changes' : 'Add Coupon'}</button>
-            </form>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            {success && <p style={{ color: 'green' }}>{success}</p>}
+        <div className="d-flex justify-content-center align-items-center vh-100">
+            <div className="card" style={{ width: '500px' }}>
+                <div className="card-body">
+                    <h2 className="mb-4 text-center display-4 fw-bold text-primary">{id ? 'Edit Coupon' : 'Add Coupon'}</h2>
+                    <form onSubmit={handleAddCompany} className="row g-3">
+                        <div className="col-12">
+                            <input
+                                type="text"
+                                value={couponName}
+                                onChange={(e) => setCouponName(e.target.value)}
+                                className="form-control"
+                                placeholder="Coupon"
+                                required
+                            />
+                        </div>
+                        <div className="col-12">
+                            <input
+                                type="text"
+                                value={discount}
+                                onChange={(e) => setDiscount(e.target.value)}
+                                className="form-control"
+                                placeholder="Discount"
+                                required
+                            />
+                        </div>
+                        <div className="col-12">
+                            <input
+                                type="text"
+                                value={providerUrl}
+                                onChange={(e) => setProviderUrl(e.target.value)}
+                                className="form-control"
+                                placeholder="Url"
+                                required
+                            />
+                        </div>
+                        <div className="col-12">
+                            <input
+                                type="file"
+                                onChange={handleImageChange}
+                                className="form-control"
+                            />
+                        </div>
+                        <div className="col-12 text-center">
+                            {imageUrl && (
+                                <div className="mb-3">
+                                    <img src={imageUrl} alt="Coupon" className="img-fluid" />
+
+                                </div>
+                            )}
+                            <button type="submit" className="btn btn-primary" disabled={loading}>
+                                {loading ? 'Loading...' : id ? 'Update Coupon' : 'Add Coupon'}
+                            </button>
+                        </div>
+                    </form>
+                    {error && <p className="text-danger mt-3">{error}</p>}
+                    {success && <p className="text-success mt-3">{success}</p>}
+                </div>
+            </div>
         </div>
     );
 };
